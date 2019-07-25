@@ -1,5 +1,5 @@
 //GAME BY RAHUL GUDISE
-//STUDENT NUMBER 661174
+
 //GAME QUORIDOR
 //A simple and fun 2 player board game, with music animated characters and much more!
 //
