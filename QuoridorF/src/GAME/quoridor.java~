@@ -1,0 +1,1322 @@
+package GAME;
+
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.awt.Font;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import java.io.File;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
+public class quoridor extends JFrame {
+
+	private JPanel contentPane;
+	int row = 17;
+	JButton btns[][] = new JButton[row][row];
+	char turn = 'r';
+	int oldX;
+	int oldY;
+	int oldX2;
+	int oldY2;
+	JLabel errorM;
+	int boardInt[][] = new int[17][17];
+	char wallF = 'y';
+	int oWallX;
+	int oWallY;
+	int checkX;
+	int checkY;
+	int saveX;
+	int saveY;
+    int possibleInt[][] = new int [row][row];
+    char foundSol = 'n';
+    char reTrace[][] = new char [row][row];;
+    private JPanel gameboard;
+    private JTextField sizeGet;
+    private JTextField twoGetName;
+    private JTextField oneGetName;
+    int turnInt = 1;
+    char redBlock = 'n';
+    char blueBlock = 'n';
+    int redWall = 10;
+    int blueWall = 10;
+    private JLabel redWallLabel;
+    private JLabel blueWallLabel;
+    private JLabel turnLabel;
+    private JButton resetBtn;
+    private JPanel cardHolder;
+    private JPanel gameScreen;
+    private JPanel instructions1;
+    private JPanel WinScreen;
+    private JPanel options;
+    private JButton btnMenu;
+    private JButton btnMenu_1;
+    private JPanel Title;
+    private JPanel instructions2;
+    private JPanel instructions3;
+    int redWin = 0;
+    int blueWin = 0;
+	int posR = 0;
+	int posY = 0;
+	int posX = 0;
+	private JLabel gamePlayer1Wins;
+	private JLabel gamePlayer2Wins;
+	private JLabel menuPlayer2Score;
+	private JLabel menuPlayer1Score;
+	private JLabel winnerPlayer;
+	private JLabel winnerName;
+	String oneName = "Player 1";
+	String twoName = "Player 2";
+	private JLabel scoreBoard;
+	private JLabel menuWinA;
+	private JLabel menuWinB;
+	private JLabel gameWinBanner;
+	private JLabel gameWinBanner2;
+	Clip backGroundMusic;
+	Clip failClick;
+	Clip menuClick;
+	Clip regClick;
+	
+    
+//add in players count as wall kinda
+    //add in wall with no other place to place bug fix
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					quoridor frame = new quoridor();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public quoridor() {
+		        
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 1440, 726);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		cardHolder = new JPanel();
+		cardHolder.setBounds(0, 0, 1424, 687);
+		contentPane.add(cardHolder);
+						cardHolder.setLayout(new CardLayout(0, 0));
+						
+						Title = new JPanel();
+						cardHolder.add(Title, "name_1298808970320826");
+						Title.setLayout(null);
+						
+						JLabel banner = new JLabel(createImageIcon("titleBanner.png"));
+						banner.setBounds(410, 11, 618, 176);
+						Title.add(banner);
+						
+						JButton playBtn = new JButton(createImageIcon("playButton.png"));
+						
+						playBtn.setContentAreaFilled(false);
+						playBtn.setBorderPainted(false);
+						
+						playBtn.setActionCommand("options");//
+						playBtn.addActionListener(new menu());//
+						
+						menuWinB = new JLabel("" + blueWin);
+						menuWinB.setFont(new Font("Tahoma", Font.PLAIN, 50));
+						menuWinB.setBounds(1198, 285, 168, 98);
+						Title.add(menuWinB);
+						
+						menuWinA = new JLabel("" + redWin);
+						menuWinA.setFont(new Font("Tahoma", Font.PLAIN, 50));
+						menuWinA.setBounds(1198, 131, 168, 83);
+						Title.add(menuWinA);
+						playBtn.setBounds(1107, 565, 276, 98);
+						Title.add(playBtn);
+						
+						menuPlayer1Score = new JLabel("Player 1");
+						menuPlayer1Score.setFont(new Font("Tahoma", Font.PLAIN, 30));
+						menuPlayer1Score.setBounds(1140, 61, 386, 46);
+						Title.add(menuPlayer1Score);
+						
+						menuPlayer2Score = new JLabel("Player 2");
+						menuPlayer2Score.setFont(new Font("Tahoma", Font.PLAIN, 30));
+						menuPlayer2Score.setBounds(1140, 230, 369, 37);
+						Title.add(menuPlayer2Score);
+						
+						scoreBoard = new JLabel(createImageIcon("titleWins.png"));
+						scoreBoard.setBounds(937, -31, 533, 494);
+						Title.add(scoreBoard);
+						
+						JLabel background = new JLabel(createImageIcon("menuBackground.gif"));
+						background.setBounds(-8, 0, 1442, 687);
+						Title.add(background);
+						
+						gameScreen = new JPanel();
+						cardHolder.add(gameScreen, "name_1298808830058666");
+						gameScreen.setLayout(null);
+						
+								gameboard = new JPanel();
+								gameboard.setBounds(1, 75, 1013, 612);
+								gameScreen.add(gameboard);
+								gameboard.setLayout(new GridLayout(17, 17, 0, 0));
+								
+								resetBtn = new JButton(createImageIcon("resetBtn.png"));
+								resetBtn.setActionCommand("reset");
+								resetBtn.setContentAreaFilled(false);
+								resetBtn.setBorderPainted(false);
+								resetBtn.setBounds(114, -13, 273, 85);
+								resetBtn.addActionListener( new menu());
+								
+								gamePlayer1Wins = new JLabel("P1: 0");
+								gamePlayer1Wins.setFont(new Font("Tahoma", Font.PLAIN, 20));
+								gamePlayer1Wins.setBounds(413, 11, 292, 30);
+								gameScreen.add(gamePlayer1Wins);
+								
+								gamePlayer2Wins = new JLabel("P2:  0");
+								gamePlayer2Wins.setFont(new Font("Tahoma", Font.PLAIN, 20));
+								gamePlayer2Wins.setBounds(784, 11, 315, 30);
+								gameScreen.add(gamePlayer2Wins);
+								
+								gameWinBanner2 = new JLabel(createImageIcon("gameBannerWin.png"));
+								gameWinBanner2.setBounds(535, 3, 687, 72);
+								gameScreen.add(gameWinBanner2);
+								
+								gameWinBanner = new JLabel(createImageIcon("gameBannerWin.png"));
+								gameWinBanner.setBounds(176, 3, 678, 72);
+								gameScreen.add(gameWinBanner);
+								gameScreen.add(resetBtn);
+								
+										errorM = new JLabel("");
+										errorM.setBounds(1092, 453, 292, 96);
+										gameScreen.add(errorM);
+										errorM.setFont(new Font("Tahoma", Font.PLAIN, 17));
+										
+										turnLabel = new JLabel(oneName +"'s turn");
+										turnLabel.setBounds(1131, 123, 217, 38);
+										gameScreen.add(turnLabel);
+										turnLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+										
+										blueWallLabel = new JLabel(twoName +"'s Walls left: " + blueWall);
+										blueWallLabel.setBounds(1110, 362, 258, 21);
+										gameScreen.add(blueWallLabel);
+										blueWallLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
+										
+										redWallLabel = new JLabel(oneName +"'s Walls left: " + redWall);
+										redWallLabel.setBounds(1110, 330, 258, 21);
+										gameScreen.add(redWallLabel);
+										redWallLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
+										
+										JLabel lblQuoridor = new JLabel(createImageIcon("gameBanner.png"));
+										lblQuoridor.setBounds(1016, 596, 391, 146);
+										gameScreen.add(lblQuoridor);
+										lblQuoridor.setFont(new Font("Tahoma", Font.BOLD, 50));
+										
+										JLabel textGame = new JLabel(createImageIcon("textBorder.png"));
+										textGame.setBounds(1006, 64, 451, 546);
+										gameScreen.add(textGame);
+										
+										JButton instructionBtn = new JButton(createImageIcon("instructionBtn.png"));
+										instructionBtn.setContentAreaFilled(false);
+										instructionBtn.setBorderPainted(false);
+										instructionBtn.setActionCommand("instructions");
+										instructionBtn.addActionListener( new menu ());
+										instructionBtn.setBounds(-38, 3, 240, 61);
+										gameScreen.add(instructionBtn);
+										
+										btnMenu = new JButton(createImageIcon("menuBtn.png"));
+										btnMenu.setContentAreaFilled(false);
+										btnMenu.setBorderPainted(false);
+										btnMenu.setActionCommand("menu");
+										btnMenu.addActionListener(new menu());
+										btnMenu.setBounds(1109, -19, 259, 96);
+										gameScreen.add(btnMenu);
+										
+										JLabel gameBackground = new JLabel(createImageIcon("gameBackground.png"));
+										gameBackground.setBounds(0, 0, 1424, 687);
+										gameScreen.add(gameBackground);
+						
+						WinScreen = new JPanel();
+						cardHolder.add(WinScreen, "name_1298808910613934");
+						WinScreen.setLayout(null);
+						
+						JButton menuWinBtn = new JButton(createImageIcon("menuBtn.png"));
+						menuWinBtn.setContentAreaFilled(false);
+						menuWinBtn.setBorderPainted(false);
+						menuWinBtn.setActionCommand("menu");
+						menuWinBtn.addActionListener(new menu());
+						
+						winnerPlayer = new JLabel("New label");
+						winnerPlayer.setBounds(474, 214, 488, 398);
+						WinScreen.add(winnerPlayer);
+						
+						winnerName = new JLabel("New label");
+						winnerName.setFont(new Font("Tahoma", Font.PLAIN, 50));
+						winnerName.setBounds(558, 109, 341, 46);
+						WinScreen.add(winnerName);
+						
+						JLabel winBanner = new JLabel(createImageIcon("winBanner.png"));
+						winBanner.setBounds(234, -3, 957, 749);
+						WinScreen.add(winBanner);
+						menuWinBtn.setBounds(88, 506, 252, 77);
+						WinScreen.add(menuWinBtn);
+						
+						JButton againWinBtn = new JButton(createImageIcon("playAgain.png"));
+						againWinBtn.setContentAreaFilled(false);
+						againWinBtn.setBorderPainted(false);
+						againWinBtn.setActionCommand("game");
+						againWinBtn.addActionListener(new menu());
+						againWinBtn.setBounds(85, 594, 255, 82);
+						WinScreen.add(againWinBtn);
+						
+						JLabel Background = new JLabel(createImageIcon("gameBackground.jpg"));
+						Background.setBounds(0, 0, 1424, 687);
+						WinScreen.add(Background);
+						
+						options = new JPanel();
+						cardHolder.add(options, "name_1298808940390760");
+						options.setLayout(null);
+						
+						sizeGet = new JTextField();
+						sizeGet.setBounds(538, 564, 308, 20);
+						options.add(sizeGet);
+						sizeGet.setColumns(10);
+						
+						twoGetName = new JTextField();
+						twoGetName.setBounds(866, 437, 271, 20);
+						options.add(twoGetName);
+						twoGetName.setColumns(10);
+						
+						oneGetName = new JTextField();
+						oneGetName.setBounds(226, 437, 308, 20);
+						options.add(oneGetName);
+						oneGetName.setColumns(10);
+						
+						JButton playGame = new JButton(createImageIcon("playButton.png"));
+						playGame.setContentAreaFilled(false);
+						playGame.setBorderPainted(false);
+						playGame.setActionCommand("check");
+						playGame.addActionListener(new menu());
+						playGame.setBounds(974, 576, 244, 100);
+						options.add(playGame);
+						
+						btnMenu_1 = new JButton(createImageIcon("menuBtn.png"));
+						btnMenu_1.setContentAreaFilled(false);
+						btnMenu_1.setBorderPainted(false);
+						btnMenu_1.setActionCommand("menu");
+						btnMenu_1.addActionListener(new menu());
+
+						btnMenu_1.setBounds(118, 512, 271, 73);
+						options.add(btnMenu_1);
+						
+						JLabel optBack = new JLabel(createImageIcon("optBack.png"));
+						optBack.setBounds(0, -1, 1424, 687);
+						options.add(optBack);
+						
+						instructions1 = new JPanel();
+						cardHolder.add(instructions1, "name_1396543813495887");
+						instructions1.setLayout(null);
+						
+						JButton btnBackToThe = new JButton(createImageIcon("backBtn.png"));
+						btnBackToThe.setContentAreaFilled(false);
+						btnBackToThe.setBorderPainted(false);
+						btnBackToThe.setActionCommand("game");
+						btnBackToThe.addActionListener(new menu());
+						btnBackToThe.setActionCommand("game");
+						btnBackToThe.addActionListener(new menu());
+						
+						JButton btnNext = new JButton(createImageIcon("nextBtn.png"));
+						btnNext.setContentAreaFilled(false);
+						btnNext.setBorderPainted(false);
+						btnNext.setActionCommand("inst1");
+						btnNext.addActionListener(new menu());
+						
+						JButton backtoGame = new JButton(createImageIcon("returnBtn.png"));
+						backtoGame.setActionCommand("game");
+						backtoGame.addActionListener(new menu());
+						backtoGame.setContentAreaFilled(false);
+						backtoGame.setBorderPainted(false);
+						backtoGame.setBounds(996, 11, 257, 89);
+						instructions1.add(backtoGame);
+						btnNext.setBounds(954, 520, 257, 89);
+						instructions1.add(btnNext);
+						btnBackToThe.setBounds(751, 530, 257, 67);
+						instructions1.add(btnBackToThe);
+						
+						JLabel lblNewLabel_1 = new JLabel(createImageIcon("instructionWin.png"));
+						lblNewLabel_1.setBounds(0, 0, 1424, 687);
+						instructions1.add(lblNewLabel_1);
+						
+						instructions2 = new JPanel();
+						cardHolder.add(instructions2, "name_1394790251434967");
+						instructions2.setLayout(null);
+						
+						JButton nextBtn = new JButton(createImageIcon("nextBtn.png"));
+						nextBtn.setContentAreaFilled(false);
+						nextBtn.setBorderPainted(false);
+						nextBtn.setActionCommand("inst2");
+						nextBtn.addActionListener(new menu());
+						
+						JButton backBtn = new JButton(createImageIcon("backBtn.png"));
+						backBtn.setContentAreaFilled(false);
+						backBtn.setBorderPainted(false);
+						backBtn.setActionCommand("back1");
+						backBtn.addActionListener(new menu());
+						backBtn.setBounds(973, 539, 222, 64);
+						instructions2.add(backBtn);
+						nextBtn.setBounds(957, 465, 264, 64);
+						instructions2.add(nextBtn);
+						
+						JButton gameBtn = new JButton(createImageIcon("returnBtn.png"));
+						gameBtn.setContentAreaFilled(false);
+						gameBtn.setBorderPainted(false);
+						gameBtn.setActionCommand("game");
+						gameBtn.addActionListener(new menu());
+						gameBtn.setBounds(1038, 11, 277, 88);
+						instructions2.add(gameBtn);
+						
+						JLabel lblNewLabel = new JLabel(createImageIcon("instructionTurn.png"));
+						lblNewLabel.setBounds(1, -1, 1422, 686);
+						instructions2.add(lblNewLabel);
+						
+						instructions3 = new JPanel();
+						cardHolder.add(instructions3, "name_1398037285743774");
+						instructions3.setLayout(null);
+						
+						JButton btnNewButton = new JButton(createImageIcon("returnBtn.png"));
+						btnNewButton.setContentAreaFilled(false);
+						btnNewButton.setBorderPainted(false);
+						 btnNewButton.setActionCommand("game");
+						 btnNewButton.addActionListener(new menu());
+						
+						JButton back = new JButton(createImageIcon("backBtn.png"));
+						back.setContentAreaFilled(false);
+						back.setBorderPainted(false);
+						back.setActionCommand("back2");
+						back.addActionListener(new menu());
+						back.setBounds(538, 498, 269, 100);
+						instructions3.add(back);
+						btnNewButton.setBounds(992, 23, 237, 89);
+						instructions3.add(btnNewButton);
+						
+						JLabel lblNewLabel_2 = new JLabel(createImageIcon("instructionRule.png"));
+						lblNewLabel_2.setBounds(0, 0, 1424, 687);
+						instructions3.add(lblNewLabel_2);
+
+		for (int y = 0; y < row; y++) {
+
+			for (int x = 0; x < row; x++) {
+				//JButton btns[x][y] = new JButton(new ImageIcon(((new ImageIcon("grass.jpg")).getImage()).getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH)));
+
+				btns[x][y] = new JButton(createImageIcon ("water.gif"));//btns[x][y] = new JButton(""); // + boardInt[x][y]
+				btns[x][y].setActionCommand("" + (x * 100 + y));
+				btns[x][y].setBorderPainted(false);
+
+				gameboard.add(btns[x][y]);
+
+				if (y % 2 == 0 || y % 2 == 2) {
+					if (x % 2 == 0 || x % 2 == 2) {
+						btns[x][y].setIcon(createImageIcon ("grass.png"));           //btns[x][y].setBackground()(Color.cyan);
+						btns[x][y].addActionListener(new PlayerMoveBtn());
+					}
+
+					else {
+						//btns[x][y].setBackground(new Color(192, 192, 192));
+						//btns[x][y] = new JButton(createImageIcon ("dirt.jpg"));   //	btns[x][y].setBackground(new Color(192, 192, 192));
+						btns[x][y].addActionListener(new WallBtn());
+					}
+				} else {
+				//	btns[x][y].setBackground(new Color(192, 192, 192));
+					//btns[x][y] = new JButton(createImageIcon ("dirt.jpg"));  
+					btns[x][y].addActionListener(new WallBtn());
+				}
+
+			}
+
+		}
+
+		for (int y = 0; y < row; y++) {
+			for (int x = 0; x < row; x++) {
+				boardInt[x][y] = 0;
+			}
+
+		}
+
+		int start = row / 2;
+		boardInt[start][0] = 1;
+		btns[start][0].setIcon(createImageIcon ("player1.gif"));//btns[start][0].setBackground(new Color(255, 0, 0)); //grass.png
+		oldX = start;
+		oldY = 0;
+		btns[start][row - 1].setIcon(createImageIcon ("player2.gif"));//btns[start][row - 1].setBackground(new Color(0, 255, 0));
+		oldX2 = start;
+		oldY2 = row - 1;
+		boardInt[start][row-1] = 2;
+		musicBackground();
+	}
+
+	protected static ImageIcon createImageIcon(String path) // create image method
+	{
+		java.net.URL imgURL = quoridor.class.getResource(path);
+		if (imgURL != null)
+			return new ImageIcon(imgURL);
+		else {
+			System.err.println("Couldn't find file: " + path);
+			return null;
+
+		}
+	}
+	public void musicBackground ()
+	  {
+	    try
+	    {
+	      AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File ("messup.wav")); //Uses Java.io to find the file that should be played
+	      backGroundMusic = AudioSystem.getClip(); //Gets the clip data and stores it into clip
+	      backGroundMusic.open(audioInputStream); // Opens the file
+	      backGroundMusic.loop(Clip.LOOP_CONTINUOUSLY); //Continuously loops the file
+	      backGroundMusic.start();//Starts playing the file
+	    }
+	    catch (Exception e) //If there is an error this will run.
+	    {
+	      System.out.println ("DUDE HELLO."); 
+	    }
+	  }
+	public void btnFail ()
+	  {
+	    try
+	    {
+	      AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File ("messup.wav")); //Uses Java.io to find the file that should be played
+	      failClick = AudioSystem.getClip(); //Gets the clip data and stores it into clip
+	      failClick.open(audioInputStream); // Opens the file
+	      failClick.start();//Starts playing the file
+	    }
+	    catch (Exception e) //If there is an error this will run.
+	    {
+	      System.out.println ("DUDE HELLO."); 
+	    }
+	  }
+	public void btnMenu ()
+	  {
+	    try
+	    {
+	      AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File ("menu.wav")); //Uses Java.io to find the file that should be played
+	      menuClick = AudioSystem.getClip(); //Gets the clip data and stores it into clip
+	      menuClick.open(audioInputStream); // Opens the file
+	      menuClick.start();//Starts playing the file
+	    }
+	    catch (Exception e) //If there is an error this will run.
+	    {
+	      System.out.println ("DUDE HELLO."); 
+	    }
+	  }
+	public void btnClick ()
+	  {
+	    try
+	    {
+	      AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File ("click.wav")); //Uses Java.io to find the file that should be played
+	      regClick = AudioSystem.getClip(); //Gets the clip data and stores it into clip
+	      regClick.open(audioInputStream); // Opens the file
+	      regClick.start();//Starts playing the file
+	    }
+	    catch (Exception e) //If there is an error this will run.
+	    {
+	      System.out.println ("DUDE HELLO."); 
+	    }
+	  }
+	
+	class menu implements ActionListener { 
+		public void actionPerformed(ActionEvent e) {
+			int numLet = 7;
+			int right = 0;
+		if (e.getActionCommand().equals("instructions"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(instructions1);
+		}
+		else if (e.getActionCommand().equals("game"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(gameScreen);
+		}
+		
+		else if (e.getActionCommand().equals("options"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(options);
+		}
+		else if (e.getActionCommand().equals("menu"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(Title);
+			
+		}
+		else if (e.getActionCommand().equals("inst1"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(instructions2);
+			
+		}
+		else if (e.getActionCommand().equals("inst2"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(instructions3);
+			
+		}
+		else if (e.getActionCommand().equals("back1"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(instructions1);
+			
+		}
+		else if (e.getActionCommand().equals("back2"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(instructions2);
+			
+		}
+		else if (e.getActionCommand().equals("option"))
+		{
+			cardHolder.removeAll();
+			cardHolder.revalidate();
+			cardHolder.repaint();
+			cardHolder.add(options);
+			
+		}
+		else if (e.getActionCommand().equals("reset"))
+		{
+		 Reset();
+			
+		}
+		else if (e.getActionCommand().equals("check"))
+		{
+			int size1 = oneGetName.getText().length();
+			int size2 = twoGetName.getText().length();
+		
+			if (size1 <= numLet)
+			{
+				right++;
+				if (oneGetName.getText().equals(""))
+					{
+					 oneName = "Player 1";
+					}
+				else
+				   {
+					 oneName = oneGetName.getText();
+				   }
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, oneName + " you dumbo! input a name no longer than " + numLet);
+				oneGetName.setText("");
+			}
+			if (size2 <= numLet)
+			{
+				right++;
+				if (twoGetName.getText().equals(""))
+				{ twoName = "Player 2";}
+			else
+			   { twoName = twoGetName.getText();}
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, twoName + "you dumbo! input a name no longer than " + numLet);
+				twoGetName.setText("");
+			}
+			try {
+				int boardPossible = Integer.parseInt(sizeGet.getText());
+				if (boardPossible%2 != 0)
+				{
+					right++;
+					row = boardPossible*2 -1;
+				
+				}
+				
+				else
+					{
+						JOptionPane.showMessageDialog(null, "Both of you are dumbos! input a board size that is a singular digit that is odd!");
+						sizeGet.setText("");
+					}
+			}
+			catch (NumberFormatException y)
+			{
+				if (sizeGet.getText().equals(""))
+				{
+					row = 17;
+					right++;
+				}
+				else
+				{
+				JOptionPane.showMessageDialog(null, "You did not input a number!");
+				sizeGet.setText("");
+				}
+			}
+			if (right == 3)
+			{
+				menuPlayer1Score.setText(oneName);
+				menuPlayer2Score.setText(twoName);
+				gamePlayer1Wins.setText(oneName + " : " + redWin);
+				gamePlayer2Wins.setText(twoName + " : " + blueWin);
+				redWallLabel.setText(oneName + "'s walls left: " + redWall );
+				blueWallLabel.setText(twoName + "'s walls left: " + blueWall );
+				if (turn == 'r')
+				{turnLabel.setText(oneName + "'s turn");}
+				else
+				{turnLabel.setText(twoName + "'s turn");}
+				oneGetName.setText("");
+				twoGetName.setText("");
+				sizeGet.setText("");
+				cardHolder.removeAll();
+				cardHolder.revalidate();
+				cardHolder.repaint();
+				cardHolder.add(gameScreen);
+				
+			}
+			
+		}
+		}
+		}
+
+	class PlayerMoveBtn implements ActionListener { //somewhere because of oldX oldY FIX REALLY SOON
+		public void actionPerformed(ActionEvent e) {
+
+			String place = e.getActionCommand();
+			posR = Integer.parseInt(place);
+			posY = posR % 100;
+			posX = (posR - posY) / 100;
+            int oldSpotX;
+            int oldSpotY;
+            
+			if (turn == 'r')
+			{
+				oldSpotX = oldX;
+				oldSpotY = oldY;
+				movePlayer(posX, posY, oldSpotX, oldSpotY);
+				
+			}
+			else
+			{
+				oldSpotX = oldX2;
+				oldSpotY = oldY2;
+				movePlayer(posX, posY, oldSpotX, oldSpotY);
+					
+			}
+		
+		}
+	}
+	public void Reset()
+	{
+		for (int y = 0; y < row; y++) {
+
+			for (int x = 0; x < row; x++) {
+
+				boardInt[x][y] = 0;	
+				reTrace[x][y] = 'y';
+				if (y % 2 == 0 || y % 2 == 2) {
+					if (x % 2 == 0 || x % 2 == 2) {
+						btns[x][y].setIcon(createImageIcon("grass.png"));
+						}
+
+					else {
+						btns[x][y].setIcon(createImageIcon("water.gif"));
+						
+					}
+				} else {
+
+					btns[x][y].setIcon(createImageIcon("water.gif"));
+				}
+
+			}
+
+		}
+		wallF = 'y';
+		int start = row / 2;
+		boardInt[start][0] = 1;
+		btns[start][0].setIcon(createImageIcon("player1.gif"));
+		oldX = start;
+		oldY = 0;
+		btns[start][row - 1].setIcon(createImageIcon("player2.gif"));
+		oldY2 = row - 1;
+		boardInt[start][row-1] = 2;
+		turn = 'r';
+		turnInt = 1;
+	    redBlock = 'n';
+	    blueBlock = 'n';
+	    redWall = 10;
+	    blueWall = 10;
+	    turnLabel.setText(oneName + "'s turn");
+	    blueWallLabel.setText(twoName +"'s wall left: 10");
+	    redWallLabel.setText(oneName + "'s wall left: 10");
+	}
+	
+		
+	public void movePlayer (int posX, int posY, int oldSpotX, int oldSpotY)
+	{
+     if (wallF == 'y')
+     {
+		char isWin = 'n';
+	 if ((posX ==  oldX && posY == oldY)||(posX ==  oldX2 && posY == oldY2))
+	 {errorM.setText("Another player is on that spot!");}
+	 else
+	 {if (posX == oldSpotX + 2 && oldSpotY == posY) {
+			if (boardInt[oldSpotX][oldSpotY] > boardInt[oldSpotX + 1][oldSpotY]) {
+				playerMove(posX, posY);
+				boardInt[oldSpotX][oldSpotY] = 0;
+				if (turn == 'r')
+				{
+					turn = 'b';
+					
+				}
+				else
+				{
+					turn = 'r';
+					
+							
+				}
+				changeTurn();
+			}
+
+			else {
+				errorM.setText("A wall blocks your path!");
+
+			}
+
+		}
+
+		else if (posX == oldSpotX - 2 && oldSpotY == posY) {
+			if (boardInt[oldSpotX][oldSpotY] > boardInt[oldSpotX - 1][oldSpotY]) {
+				playerMove(posX, posY);
+				boardInt[oldSpotX][oldSpotY] = 0;
+				if (turn == 'r')
+				{
+					turn = 'b';
+					
+				}
+				else
+				{
+					turn = 'r';
+					
+							
+				}
+				changeTurn();
+			}
+
+			else {
+				errorM.setText("A wall blocks your path!");
+
+			}
+
+		}
+
+		else if (posY == oldSpotY + 2 && oldSpotX == posX) {
+			if (boardInt[oldSpotX][oldSpotY] > boardInt[oldSpotX][oldSpotY + 1]) {
+				playerMove(posX, posY);
+				boardInt[oldSpotX][oldSpotY] = 0;
+				isWin = winGame(posY);
+				if (isWin == 'n')
+				{
+					if (turn == 'r')
+					{
+						turn = 'b';
+						
+					}
+					else
+					{
+						turn = 'r';
+					
+								
+					}
+					changeTurn();
+				}
+				
+			}
+
+			else {
+				errorM.setText("A wall blocks your path!");
+
+			}
+
+		}
+
+		else if (posY == oldSpotY - 2 && oldSpotX == posX) {
+			if (boardInt[oldSpotX][oldSpotY] > boardInt[oldSpotX][oldSpotY - 1]) {
+				playerMove(posX, posY);
+				boardInt[oldSpotX][oldSpotY] = 0;
+				isWin = winGame(posY);
+				if (isWin == 'n')
+				{
+					if (turn == 'r')
+					{
+						turn = 'b';
+						
+					}
+					else
+					{
+						turn = 'r';
+					
+								
+					}
+					changeTurn();
+				}
+			}
+			
+
+			else {
+				errorM.setText("A wall blocks your path!");
+
+			}
+
+		}
+
+		else {
+			errorM.setText("Pick a valid spot!");
+
+		}
+	if (turn == 'r')
+	{
+		boardInt[posX][posY] = 1;
+	}
+	else
+	{
+		boardInt[posX][posY] = 2;
+	}
+	}
+     }	
+     else
+    	errorM.setText("You have placed a wall, you can't move, please place the wall!");
+	}
+	public void changeTurn()
+	{
+		if (turn == 'r')
+		{turnLabel.setText(oneName +"'s Turn");}
+		else
+		{turnLabel.setText(twoName + "'s Turn");}
+	}
+	public char winGame(int posY) ////////////////////////////////////////////////////////
+	{   
+		Object[] options = {"OK"}; //Learn
+		//set win to proper thing
+		char isWon = 'n';
+		if (turn == 'r' && posY == row -1)
+		{
+		 turnLabel.setText("Red WINS!");
+         isWon = 'y';	
+         redWin++;
+         gamePlayer1Wins.setText("P1: " + redWin);
+         menuWinA.setText("" + redWin);
+         
+         int n = JOptionPane.showOptionDialog(null,
+                        oneName +" wins! ", twoName + " is bad",
+                        JOptionPane.PLAIN_MESSAGE,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+         if (n == 0)
+		 {
+			    cardHolder.removeAll();
+				cardHolder.revalidate();
+				cardHolder.repaint();
+				cardHolder.add(WinScreen);
+				winnerName.setText(oneName +" wins!");
+				winnerPlayer.setIcon(createImageIcon("player1A.gif"));
+		 }
+         
+		}
+		else if (turn == 'b'&& posY == 0)
+		{
+		turnLabel.setText("Blue WINS!");
+		isWon = 'y';
+		blueWin++;
+		gamePlayer2Wins.setText("P2: " + blueWin);
+		menuWinB.setText("" + blueWin);
+		 int n = JOptionPane.showOptionDialog(null,
+				   twoName +" wins! ", oneName + " is bad",
+                 JOptionPane.PLAIN_MESSAGE,
+                 JOptionPane.QUESTION_MESSAGE,
+                 null,
+                 options,
+                 options[0]);
+		 if (n == 0)
+		 {
+			    cardHolder.removeAll();
+				cardHolder.revalidate();
+				cardHolder.repaint();
+				cardHolder.add(WinScreen);
+				winnerName.setText(twoName + " wins!");
+				winnerPlayer.setIcon(createImageIcon("player2A.gif"));
+		 }
+		}
+		return isWon;
+	}
+ 
+	class WallBtn implements ActionListener {
+		public void actionPerformed(ActionEvent e) 
+		{
+			
+		   
+			String place = e.getActionCommand();
+
+			int posR = Integer.parseInt(place);
+			int posY = posR % 100;
+			int posX = (posR - posY) / 100;
+		
+			for (int x = 0; x < row; x++)
+			{
+			  for (int y = 0; y < row; y++)
+			  {
+				  possibleInt[x][y] =  boardInt[x][y];
+			  }
+			}
+			
+			possibleInt[posX][posY] = 3;
+			saveX = 0;
+			foundSol = 'n';
+	
+			//reTrace = new char [row][row];
+		    redBlock = isRedBlock();
+		    blueBlock = isBlueBlock();
+					
+		   	if (redBlock == 'y' && blueBlock == 'y')
+		   	{
+		   		foundSol = 'y';
+		   	}
+		   	else 
+		   	{
+		   		foundSol = 'n';
+		   	}
+		   	if ((turn == 'r' && redBlock != 'y')||(turn == 'b' && blueBlock != 'y'))
+		   	{errorM.setText("You're blocking yourself!");}
+	      
+			/*
+			 * || (posY == 0 && (boardInt[posX+ 1][posY] == 0 || boardInt[posX - 1][posY] == 0  || boardInt[posX][posY + 1] == 0))
+			 || (posY == row - 1 && (boardInt[posX+ 1][posY] == 0 || boardInt[posX - 1][posY] == 0  || boardInt[posX][posY - 1] == 0))
+			 || (posX == row - 1 && (boardInt[posX - 1][posY] == 0 || boardInt[posX][posY + 1] == 0  || boardInt[posX][posY - 1] == 0))
+			 || (posX == 0 && (boardInt[posX + 1][posY] == 0 || boardInt[posX][posY + 1] == 0  || boardInt[posX][posY - 1] == 0))
+			 */
+	if (foundSol == 'y')
+	{
+	 if(wallF == 'y' && (((posY != 0 && posY != row -1 && posX != 0 && posX != row -1) && (boardInt[posX + 1][posY] == 0||boardInt[posX - 1][posY] == 0 ||boardInt[posX][posY +1] == 0||boardInt[posX][posY - 1] == 0))
+			 ||(posY == 0 && boardInt[posX][posY + 1] == 0)||(posY == row - 1 && boardInt[posX][posY - 1] == 0)||(posX == row - 1 && boardInt[posX - 1][posY] == 0)||(posX == 0 && boardInt[posX+1][posY] == 0)))
+		{
+		if ((turn == 'r'&& redWall > 0)||(turn == 'b'&& blueWall > 0))
+		{
+			if(wallF=='y')
+
+			{
+				btns[posX][posY].setIcon(createImageIcon ("wall.gif")); //Background(new Color(0, 0, 0));
+				boardInt[posX][posY] = 3; // walls = 3, player 1 = 1, player 2 = 2
+				oWallX = posX;
+				oWallY = posY;
+				wallF = 'f';
+			}
+			else
+			{
+				if (((posX == oWallX + 1 || posX == oWallX - 1) && oWallY == posY)
+						|| ((posY == oWallY + 1 || posY == oWallY - 1) && oWallX == posX)) {
+					wallF = 'y';
+					btns[posX][posY].setIcon(createImageIcon ("wall.gif")); //Background(new Color(0, 0, 0));
+					boardInt[posX][posY] = 3; // walls = 3, player 1 = 1, player 2 = 2
+					oWallX = posX;
+					oWallY = posY;
+					if (turn == 'r')
+					{
+						redWall--;
+						redWallLabel.setText(oneName + "'s Walls left: " + redWall);
+						turn = 'b';
+						
+					}
+					else
+					{
+					blueWall--;
+					blueWallLabel.setText(twoName +"'s Walls left: " + blueWall);
+					turn = 'r';
+					
+					}
+					changeTurn();
+					
+				} else {
+					errorM.setText("Please place the wall in the correct spot!");
+				}
+
+			}
+		}
+		else if (turn == 'r')
+		{errorM.setText("Red you're out of walls!");}
+		else
+		{errorM.setText("Blue you're out of walls!");}
+	}
+	 else if (wallF != 'y')
+	 {
+		 if ((turn == 'r'&& redWall > 0)||(turn == 'b'&& blueWall > 0))
+			{
+				if(wallF=='y')
+
+				{
+					btns[posX][posY].setIcon(createImageIcon ("wall.gif")); //Background(new Color(0, 0, 0));
+					boardInt[posX][posY] = 3; // walls = 3, player 1 = 1, player 2 = 2
+					oWallX = posX;
+					oWallY = posY;
+					wallF = 'f';
+				}
+				else
+				{
+					if (((posX == oWallX + 1 || posX == oWallX - 1) && oWallY == posY)
+							|| ((posY == oWallY + 1 || posY == oWallY - 1) && oWallX == posX)) {
+						wallF = 'y';
+						btns[posX][posY].setIcon(createImageIcon ("wall.gif")); //Background(new Color(0, 0, 0));
+						boardInt[posX][posY] = 3; // walls = 3, player 1 = 1, player 2 = 2
+						oWallX = posX;
+						oWallY = posY;
+						if (turn == 'r')
+						{
+							redWall--;
+							redWallLabel.setText(oneName +"'s Walls left: " + redWall);
+							turn = 'b';
+							
+						}
+						else
+						{
+						blueWall--;
+						blueWallLabel.setText(twoName + "'s Walls left: " + blueWall);
+						turn = 'r';
+						
+						}
+						changeTurn();
+						
+					} else {
+						errorM.setText("Please place the wall in the correct spot!");
+					}
+
+				}
+			}
+			else if (turn == 'r')
+			{errorM.setText("Red you're out of walls!");}
+			else
+			{errorM.setText("Blue you're out of walls!");}
+	 }
+	 else
+	 {
+		 errorM.setText("No other whirlpool can be placed!"); 
+	 }
+	}
+	else if ((turn == 'r' && redBlock != 'y')||(turn == 'b' && blueBlock != 'y'))
+	{
+		errorM.setText("You're blocking yourself!");
+		
+	}
+	else 
+	{errorM.setText("Stop blocking the other player!");}
+	}
+
+
+	}
+	public char isRedBlock()
+	{
+		char isSwitch = 'n';
+		if (turn != 'r')
+			{
+			turn = 'r';
+			isSwitch = 'y';
+			}
+		turnInt = 1;
+		for (int i = 0; i < row; i++)
+		{ 
+			Arrays.fill(reTrace[i], 'y');
+		}
+		checkX = oldX;
+		checkY = oldY;
+		redBlock = isEscape();
+		if (isSwitch == 'y')
+		{
+			turn = 'b';
+		}
+		return redBlock;
+		
+		
+	}
+	public char isBlueBlock()
+	{
+		char isSwitch = 'n';
+		if (turn != 'b')
+			{
+			turn = 'b';
+			isSwitch = 'y';
+			}
+		turnInt = -1;
+		for (int i = 0; i < row; i++)
+		{ 
+			Arrays.fill(reTrace[i], 'y');
+		}
+		
+		checkX = oldX2;
+		checkY = oldY2;
+		blueBlock = isEscape();	
+		if (isSwitch == 'y')
+		{
+			turn = 'r';
+		}
+		return blueBlock;
+	}
+	
+	public void playerMove (int posX, int posY)
+	{
+	 if (turn == 'r')
+	 {
+		btns[oldX][oldY].setIcon(createImageIcon("grass.png"));
+		btns[posX][posY].setIcon(createImageIcon("player1.gif"));
+		oldX = posX;
+		oldY = posY;
+	 }
+	 else 
+	 {
+		 btns[oldX2][oldY2].setIcon(createImageIcon("grass.png"));
+		 btns[posX][posY].setIcon(createImageIcon("player2.gif"));
+		 oldX2 = posX;
+		 oldY2 = posY;
+	 }
+	}
+
+	public char isEscape()
+	{
+	
+		foundSol ='n'; //MOVE BACK TO OG METHOD BUTN
+		//possibleInt[checkX][checkY] = 3;//may have to change to somethig else VOLATILE
+	  
+		reTrace[checkX][checkY] = 'n'; //volatile
+		
+		while (foundSol == 'n' && possibleInt[checkX][checkY + 1*turnInt] == 0 && reTrace[checkX][checkY + 2*turnInt] == 'y' ) //there is space to go up, has not been discovered, ssolution is not found
+		{
+			checkY = checkY + 2*turnInt;
+			reTrace[checkX][checkY] = 'n';
+			if ((checkY == row - 1 && turn == 'r' )||(checkY == 0 && turn == 'b' ))      
+			{
+				foundSol = 'y';
+			}
+		}
+		
+		if (foundSol == 'n')// move sideways code
+		{
+			scanSide();
+		}
+		
+		if (foundSol == 'n') //move 1 down and scan
+		{
+			while ( checkY != 0 && checkY != row -1 &&  possibleInt[checkX][checkY -1*turnInt] == 0 )
+			{		
+				checkY = checkY -2*turnInt;
+				scanSide();
+			}
+		}
+		if (foundSol == 'n' && (checkY == 0 || checkY == row -1 ))
+		{
+			scanSide();
+		}
+		if (checkY != 0 && checkY != row -1  && foundSol == 'n'  && possibleInt[checkX][checkY -1*turnInt] == 3  ) //hit dead end, look for way down, look for way up
+		{
+			saveX = checkX;
+			saveY = checkY;
+			while (checkX < row && possibleInt[checkX + 1][checkY] == 0 )
+			{			
+				checkX = checkX + 2;
+				reTrace[checkX][checkY] = 'n';
+				if ( possibleInt[checkX][checkY - 1*turnInt] == 0)
+				{
+					checkY = checkY -2*turnInt;
+					reTrace[checkX][checkY] = 'n';
+					scanSide();
+				}
+				
+			}
+			checkX = saveX;
+			checkY = saveY;
+			while (checkX > 0 && possibleInt[checkX - 1][checkY] == 0 )
+			{
+				checkX = checkX - 2;
+				reTrace[checkX][checkY] = 'n';
+				if ( possibleInt[checkX][checkY - 1*turnInt] == 0)
+				{
+					checkY = checkY -2*turnInt;
+					reTrace[checkX][checkY] = 'n';
+					scanSide();
+				}
+			}
+		}
+		
+		return foundSol;//add in the check is things is solved code
+	}
+	
+	public void scanSide()
+	{
+		saveX = checkX;
+		saveY = checkY; //VOLATILE
+		
+		while (checkX < row && checkX != row -1 && possibleInt[checkX + 1][checkY] == 0 && foundSol == 'n' && reTrace[checkX + 2][checkY]== 'y') //checkX < row && possibleInt[checkX + 1][checkY] == 0 && foundSol == 'n' && reTrace[checkX + 2][checkY]== 'y'
+		{
+			checkX = checkX + 2;
+			reTrace[checkX][checkY] = 'n';
+			
+			
+			if (possibleInt[checkX][checkY+1*turnInt] == 0 && reTrace[checkX][checkY + 2*turnInt]== 'y')
+			{
+				foundSol = isEscape();
+			}
+			
+			if (checkX == row -1 && foundSol == 'y')
+			{break;}
+		}
+		checkX = saveX;
+		checkY = saveY;//VOLATILE
+		while (checkX > 0 && possibleInt[checkX - 1][checkY] == 0 && foundSol == 'n' && reTrace[checkX - 2][checkY]== 'y')
+		{
+			checkX = checkX - 2;
+			reTrace[checkX][checkY] = 'n';
+			if (possibleInt[checkX][checkY+1*turnInt] == 0 && reTrace[checkX][checkY + 2*turnInt]== 'y')
+			{
+				foundSol = isEscape();
+			}
+			
+			if (checkX == 0 && foundSol == 'y')
+			{break;}
+		}
+		
+		
+	}
+}
+	
